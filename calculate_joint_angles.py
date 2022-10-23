@@ -57,7 +57,7 @@ def median_filter(kpts, window_size = 3):
     from scipy.signal import medfilt
 
 
-    #apply median filter to get rid of poor keypoints estimations
+    # apply median filter to get rid of poor keypoints estimations
     for joint in filtered['joints']:
         joint_kpts = filtered[joint]
         xs = joint_kpts[:,0]
