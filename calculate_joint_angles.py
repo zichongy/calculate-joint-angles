@@ -11,15 +11,16 @@ from kinematics_definition import hierarchy_pennaction as hierarchy
 from kinematics_definition import offset_directions_pennaction as offset_directions
 
 def read_keypoints(filename_xyz):
-
-    num_keypoints = 15
+ 
     kpts_xyz = np.load(filename_xyz, allow_pickle=True)
     kpts_xyz = np.transpose(kpts_xyz, axes=[1, 2, 0]) # frames x njoins x 3
-    kpts_xyz_added = np.zeros((kpts_xyz.shape[0],kpts_xyz.shape[1]+2,kpts_xyz.shape[2]))
-    kpts_xyz_added[:,:kpts_xyz.shape[1],:] = kpts_xyz
-    kpts_xyz_added[:,13,:] = (kpts_xyz_added[:,7,:] + kpts_xyz_added[:,8,:]) / 2
-    kpts_xyz_added[:,14,:] = (kpts_xyz_added[:,1,:] + kpts_xyz_added[:,2,:]) / 2
-    return kpts_xyz_added
+    # Already done in preprocessing
+    # num_keypoints = 15
+    # kpts_xyz_added = np.zeros((kpts_xyz.shape[0],kpts_xyz.shape[1]+2,kpts_xyz.shape[2]))
+    # kpts_xyz_added[:,:kpts_xyz.shape[1],:] = kpts_xyz
+    # kpts_xyz_added[:,13,:] = (kpts_xyz_added[:,7,:] + kpts_xyz_added[:,8,:]) / 2
+    # kpts_xyz_added[:,14,:] = (kpts_xyz_added[:,1,:] + kpts_xyz_added[:,2,:]) / 2
+    return kpts_xyz
 
 
 def convert_to_dictionary(kpts):
