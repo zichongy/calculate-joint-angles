@@ -1,8 +1,8 @@
 [user]
   name = Zichong Yang
   email = zichongy@andrew.cmu.edu
-  signingkey = CF357D6B449E06C7
+  signingkey = CE2F85721883BD56
 [gpg]
-  program = /usr/local/bin/gpg
+  program = %APPDATA%\gnupg
 [commit]
   gpgsign = true
