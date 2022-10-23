@@ -1,26 +1,17 @@
+import os
+import sys
+import pickle
 from random import random
 from symbol import import_stmt
+
 import numpy as np
-import sys
-import utils
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
+import utils
 from kinematics_definition import keypoints_to_index_pennaction as keypoints_to_index
 from kinematics_definition import hierarchy_pennaction as hierarchy
 from kinematics_definition import offset_directions_pennaction as offset_directions
-
-def read_keypoints(filename_xyz):
- 
-    kpts_xyz = np.load(filename_xyz, allow_pickle=True)
-    kpts_xyz = np.transpose(kpts_xyz, axes=[1, 2, 0]) # frames x njoins x 3
-    # Already done in preprocessing
-    # num_keypoints = 15
-    # kpts_xyz_added = np.zeros((kpts_xyz.shape[0],kpts_xyz.shape[1]+2,kpts_xyz.shape[2]))
-    # kpts_xyz_added[:,:kpts_xyz.shape[1],:] = kpts_xyz
-    # kpts_xyz_added[:,13,:] = (kpts_xyz_added[:,7,:] + kpts_xyz_added[:,8,:]) / 2
-    # kpts_xyz_added[:,14,:] = (kpts_xyz_added[:,1,:] + kpts_xyz_added[:,2,:]) / 2
-    return kpts_xyz
 
 
 def convert_to_dictionary(kpts):
@@ -251,15 +242,6 @@ def draw_skeleton_from_joint_coordinates(kpts):
     fig = plt.figure(figsize=(5,5))
     ax = fig.add_subplot(111, projection='3d')
 
-    connections = [['hips', 'lefthip'], ['lefthip', 'leftknee'], ['leftknee', 'leftfoot'],['leftfoot', 'lefttoe'],
-                   ['hips', 'righthip'], ['righthip', 'rightknee'], ['rightknee', 'rightfoot'],['rightfoot', 'righttoe'],
-                   ['hips', 'waist'],['waist', 'neck'], ['neck', 'upperneck'], ['upperneck', 'head'],
-                   ['neck', 'leftshoulder'], ['leftshoulder', 'leftelbow'], ['leftelbow', 'leftwrist'],
-                   ['leftwrist', 'leftwrist2'], ['leftwrist2', 'leftthumb'], ['leftthumb', 'lefthand'],
-                   ['neck', 'rightshoulder'], ['rightshoulder', 'rightelbow'], ['rightelbow', 'rightwrist'],
-                   ['rightwrist', 'rightwrist2'], ['rightwrist2', 'rightthumb'], ['rightthumb', 'righthand'],
-                  ]
-
     for framenum in range(kpts['lefthip'].shape[0]):
         #kpts['lefthip'].shape[0]
         # print(framenum)
@@ -344,72 +326,59 @@ def draw_skeleton_from_joint_angles(kpts):
 
 if __name__ == '__main__':
 
-    if len(sys.argv) < 2:
+    if len(sys.argv) < 3:
         print('Call program with input pose file')
         quit()
 
-    import pdb; pdb.set_trace()
-    # load the pose file
-    filename_xyz = sys.argv[1]
-    kpts = read_keypoints(filename_xyz)
+    input_dir = sys.argv[1]
+    output_dir = sys.argv[2]
 
-    #record time
-    import time
-    start = time.time()
+    file_list = [fname for fname in os.listdir(input_dir) if fname.endswith('.npy')]
 
-    # rotate to orient the pose better
-    R = utils.get_R_z(np.pi)
-    for framenum in range(kpts.shape[0]):
-        for kpt_num in range(kpts.shape[1]):
-            kpts[framenum,kpt_num] = R @ kpts[framenum,kpt_num]
+    for fname in file_list:
+        # load the pose file
+        kpts = np.load(input_dir + fname, allow_pickle=True)
+        kpts = np.transpose(kpts, axes=[1, 2, 0]) # out: frames x njoins x 3
 
-    # convert to dictionary of joints, each key stores cooordiantes of all the frames of that joint
-    kpts = convert_to_dictionary(kpts)
+        #record time
+        # import time
+        # start = time.time()
 
-    # define the hierarchy and root joint
-    add_hips_and_neck(kpts)
+        # rotate to orient the pose better
+        R = utils.get_R_z(np.pi)
+        for framenum in range(kpts.shape[0]):
+            for kpt_num in range(kpts.shape[1]):
+                kpts[framenum,kpt_num] = R @ kpts[framenum,kpt_num]
 
-    # apply median filter, per joint, per axis
-    filtered_kpts = median_filter(kpts)
+        # convert to dictionary of joints, each key stores cooordiantes of all the frames of that joint
+        kpts = convert_to_dictionary(kpts)
 
-    # calculate bone lengths by finding median distance between joints
-    get_bone_lengths(filtered_kpts)
+        # define the hierarchy and root joint
+        add_hips_and_neck(kpts)
 
-    # symmetrize and normalize
-    get_base_skeleton(filtered_kpts)
+        # apply median filter, per joint, per axis
+        filtered_kpts = median_filter(kpts)
 
-    # add original angles to the dictionary
-    # filtered_kpts_assign = assign_joint_angles(filtered_kpts, kpts_angle)
-    
-    # calculate joint angles based on processed skeleton
-    calculate_joint_angles(filtered_kpts)
-    
-    # record time taken
-    end = time.time()
-    print("time: ", end-start)
+        # calculate bone lengths by finding median distance between joints
+        get_bone_lengths(filtered_kpts)
 
-    # import matplotlib.pyplot as plt
-    # from sklearn.gaussian_process import GaussianProcessRegressor
-    # from sklearn.gaussian_process.kernels import RBF, RationalQuadratic, ExpSineSquared
+        # symmetrize and normalize
+        get_base_skeleton(filtered_kpts)
 
-    # kernel = 1.0 * RBF(length_scale=40.0, length_scale_bounds=(1e-1, 2e2))
-    # # kernel = ExpSineSquared(length_scale=20.0, periodicity=1)
-    # gpr = GaussianProcessRegressor(kernel=kernel, alpha=0.01, random_state=0)
+        # add original angles to the dictionary
+        # filtered_kpts_assign = assign_joint_angles(filtered_kpts, kpts_angle)
+        
+        # calculate joint angles based on processed skeleton
+        calculate_joint_angles(filtered_kpts)
 
-    # for key in filtered_kpts.keys():
-    #     if 'elbow_angles' in key:
-    #         X = np.linspace(start=0,stop=30,num=31)
-    #         y = filtered_kpts[key][:,0]
-    #         plt.plot(X, y, label=key)
+        # save as pickle file
+        with open(output_dir + fname.replace('.npy', '.pkl'), 'wb') as fd:
+            pickle.dump(filtered_kpts, fd)
+        fd.close()
+        
+        # record time taken
+        # end = time.time()
+        # print("time: ", end-start)
 
-    #         for i in range(10,30):
-    #             X10 = X[0:i].reshape(-1,1)
-    #             y10 = y[0:i]
-    #             gpr.fit(X10, y10)
-    #             gpr.kernel_
-    #             mean_prediction, std_prediction = gpr.predict(X[i+1].reshape(-1, 1), return_std=True)
-    #             plt.plot(X[i+1], mean_prediction, marker="x")
-    # plt.legend(bbox_to_anchor=(0, 1), loc='upper left', ncol=1)
-    # plt.show()
-
-    draw_skeleton_from_joint_angles(filtered_kpts)
+        # # draw the skeleton
+        # draw_skeleton_from_joint_angles(filtered_kpts)
