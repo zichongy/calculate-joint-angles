@@ -66,7 +66,10 @@ def Get_R2(A, B):
                    [v[2], 0, -v[0]],
                    [-v[1], v[0], 0]])
 
+    if s == 0:
+        return np.eye(3)
     R = np.eye(3) + vx + vx@vx*((1-c)/s**2)
+
 
     return R
 

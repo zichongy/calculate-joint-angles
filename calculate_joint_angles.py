@@ -1,3 +1,5 @@
+from logging import root
+from operator import add
 import os
 import sys
 import pickle
@@ -8,11 +10,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
-import utils
+import utils.utils as utils
 from kinematics_definition import keypoints_to_index_pennaction as keypoints_to_index
 from kinematics_definition import hierarchy_pennaction as hierarchy
 from kinematics_definition import offset_directions_pennaction as offset_directions
 
+from pennaction_error_file_list import error_file_list
 
 def convert_to_dictionary(kpts):
     kpts_dict = {}
@@ -87,7 +90,6 @@ def get_bone_lengths(kpts):
         # plt.title(joint)
         # plt.show()
 
-    #print(bone_lengths)
     kpts['bone_lengths'] = bone_lengths
     return
 
@@ -160,7 +162,6 @@ def get_joint_rotations(joint_name, joints_hierarchy, joints_offsets, frame_rota
         _invR = _invR@R.T
 
     b = _invR @ (frame_pos[joint_name] - frame_pos[joints_hierarchy[joint_name][0]])
-    # print(joint_name)
     _R = utils.Get_R2(joints_offsets[joint_name], b)
     tz, ty, tx = utils.Decompose_R_ZXY(_R)
     joint_rs = np.array([tz, tx, ty])
@@ -275,7 +276,7 @@ def draw_skeleton_from_joint_coordinates(kpts):
         ax.cla()
     plt.close()
 
-#recalculate joint positions from calculated joint angles and draw
+#recalculate joint from calculated joint angles and draw
 def draw_skeleton_from_joint_angles(kpts):
     fig = plt.figure(figsize=(5,5))
     ax = fig.add_subplot(111, projection='3d')
@@ -312,7 +313,7 @@ def draw_skeleton_from_joint_angles(kpts):
         ax.set_zticks([])
         ax.azim = 90
         ax.elev = -85
-        ax.set_title('Pose from joint angles')
+        ax.set_title('Pose from joint angles, frame ' + str(framenum+1))
         ax.set_xlim3d(-5, 5)
         ax.set_xlabel('x')
         ax.set_ylim3d(-5, 5)
@@ -334,13 +335,18 @@ if __name__ == '__main__':
     output_dir = sys.argv[2]
 
     file_list = [fname for fname in os.listdir(input_dir) if fname.endswith('.npy')]
+    # file_list = ['0003.npy']
 
     for fname in file_list:
+        # skip error files for now
+        if fname in error_file_list: continue
+
         # load the pose file
         kpts = np.load(input_dir + fname, allow_pickle=True)
         kpts = np.transpose(kpts, axes=[1, 2, 0]) # out: frames x njoins x 3
 
         #record time
+        # print('Processing file: ', fname)
         # import time
         # start = time.time()
 

@@ -1,7 +1,7 @@
 from symbol import import_stmt
 import numpy as np
 import sys
-import utils
+import utils.utils as utils
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
