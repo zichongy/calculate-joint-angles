@@ -5,21 +5,30 @@ import utils.utils as utils
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
-from kinematics_definition import keypoints_to_index_25 as keypoints_to_index
-from kinematics_definition import hierarchy_25 as hierarchy
-from kinematics_definition import offset_directions_25 as offset_directions
+from data.kinematics_definition import keypoints_to_index_25 as keypoints_to_index
+from data.kinematics_definition import hierarchy_25 as hierarchy
+from data.kinematics_definition import offset_directions_25 as offset_directions
 
-def read_keypoints(filename_xyz, filename_angle):
+# def read_keypoints(filename_xyz, filename_angle):
+
+#     num_keypoints = 25
+#     kpts_angle = np.load(filename_angle, allow_pickle=True)
+#     kpts_angle = np.transpose(kpts_angle, axes=[1, 2, 0])
+
+#     kpts_xyz = np.load(filename_xyz, allow_pickle=True)
+#     kpts_xyz = np.transpose(kpts_xyz, axes=[1, 2, 0])
+#     # kpts_xyz[:, :, 2] = np.zeros((50, 25))
+#     # import pdb; pdb.set_trace()
+#     return kpts_xyz, kpts_angle
+
+def read_keypoints(filename_xyz):
 
     num_keypoints = 25
-    kpts_angle = np.load(filename_angle, allow_pickle=True)
-    kpts_angle = np.transpose(kpts_angle, axes=[1, 2, 0])
-
     kpts_xyz = np.load(filename_xyz, allow_pickle=True)
-    kpts_xyz = np.transpose(kpts_xyz, axes=[1, 2, 0])
-    kpts_xyz[:, :, 2] = np.zeros((50, 25))
+    # kpts_xyz = np.transpose(kpts_xyz, axes=[1, 2, 0])
+    # kpts_xyz[:, :, 2] = np.zeros((50, 25))
     # import pdb; pdb.set_trace()
-    return kpts_xyz, kpts_angle
+    return kpts_xyz
 
 
 def convert_to_dictionary(kpts):
@@ -365,24 +374,26 @@ def draw_skeleton_from_joint_angles(kpts):
 
 if __name__ == '__main__':
 
-    if len(sys.argv) != 3:
-        print('Call program with input pose file')
-        quit()
+    # if len(sys.argv) != 3:
+    #     print('Call program with input pose file')
+    #     quit()
 
     # load the pose file
-    filename_xyz = sys.argv[1]
-    filename_angle = sys.argv[2]
-    kpts, kpts_angle = read_keypoints(filename_xyz, filename_angle)
+    # filename_xyz = sys.argv[1]
+    filename_xyz = 'datasets/NTU/S001C002P002R002A005.npy'
+    # filename_angle = sys.argv[2]
+    # kpts, kpts_angle = read_keypoints(filename_xyz, filename_angle)
+    kpts = read_keypoints(filename_xyz)
 
     #record time
     import time
     start = time.time()
 
     #rotate to orient the pose better
-    R = utils.get_R_z(np.pi/2)
-    for framenum in range(kpts.shape[0]):
-        for kpt_num in range(kpts.shape[1]):
-            kpts[framenum,kpt_num] = R @ kpts[framenum,kpt_num]
+    # R = utils.get_R_z(np.pi/2)
+    # for framenum in range(kpts.shape[0]):
+    #     for kpt_num in range(kpts.shape[1]):
+    #         kpts[framenum,kpt_num] = R @ kpts[framenum,kpt_num]
 
     # convert to dictionary of joints, each key stores cooordiantes of all the frames of that joint
     kpts = convert_to_dictionary(kpts)
@@ -400,7 +411,7 @@ if __name__ == '__main__':
     get_base_skeleton(filtered_kpts)
 
     # add original angles to the dictionary
-    filtered_kpts_assign = assign_joint_angles(filtered_kpts, kpts_angle)
+    # filtered_kpts_assign = assign_joint_angles(filtered_kpts, kpts_angle)
     
     # calculate joint angles based on processed skeleton
     calculate_joint_angles(filtered_kpts)
@@ -410,5 +421,5 @@ if __name__ == '__main__':
     print("time: ", end-start)
 
     # draw the skeleton
-    draw_skeleton_from_joint_coordinates(filtered_kpts_assign)
+    # draw_skeleton_from_joint_coordinates(filtered_kpts_assign)
     draw_skeleton_from_joint_angles(filtered_kpts)

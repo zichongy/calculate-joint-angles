@@ -11,11 +11,11 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
 import utils.utils as utils
-from kinematics_definition import keypoints_to_index_pennaction as keypoints_to_index
-from kinematics_definition import hierarchy_pennaction as hierarchy
-from kinematics_definition import offset_directions_pennaction as offset_directions
+from data.kinematics_definition import keypoints_to_index_pennaction as keypoints_to_index
+from data.kinematics_definition import hierarchy_pennaction as hierarchy
+from data.kinematics_definition import offset_directions_pennaction as offset_directions
 
-from pennaction_error_file_list import error_file_list
+from data.pennaction_error_file_list import error_file_list
 
 def convert_to_dictionary(kpts):
     kpts_dict = {}
