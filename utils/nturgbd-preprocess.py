@@ -15,6 +15,7 @@ rgb_bodyx:      the projection of the skeleton coordinate in RGBs.
 depth_bodyx:    the projection of the skeleton coordinate in Depths
 """
 
+from tqdm import tqdm
 import numpy as np
 import os
 import sys
@@ -25,20 +26,6 @@ missing_file_path = 'datasets/NTU/NTU_RGBD_samples_with_missing_skeletons.txt'
 # missing_file_path' = 'datasets/NTU/NTU_RGBD120_samples_with_missing_skeletons.txt'
 step_ranges = list(range(0,100)) # just parse range, for the purpose of paralle running.
 
-
-toolbar_width = 50
-def _print_toolbar(rate, annotation=''):
-    sys.stdout.write("{}[".format(annotation))
-    for i in range(toolbar_width):
-        if i * 1.0 / toolbar_width > rate:
-            sys.stdout.write(' ')
-        else:
-            sys.stdout.write('-')
-        sys.stdout.flush()
-    sys.stdout.write(']\r')
-
-def _end_toolbar():
-    sys.stdout.write('\n')
 
 def _load_missing_file(path):
     missing_files = dict()
@@ -120,25 +107,18 @@ if __name__ == '__main__':
     alread_exist = os.listdir(save_npy_path)
     alread_exist_dict = dict(zip(alread_exist, len(alread_exist) * [True]))
      
-    for ind, each in enumerate(datalist):
-        _print_toolbar(ind * 1.0 / len(datalist),
-                       '({:>5}/{:<5})'.format(
-                           ind + 1, len(datalist)
-                       ))
+    for ind, each in enumerate(tqdm(datalist, position=0, leave=True)):
         S = int(each[1:4])
         if S not in step_ranges:
             continue 
-        if each+'.npy' in alread_exist_dict:
-            print('file already existed !')
+        if (each+'.npy' in alread_exist_dict) or (each[:20] in missing_files):
+            # print('file already existed !')
+            # print('file missing')
             continue
-        if each[:20] in missing_files:
-            print('file missing')
-            continue 
         loadname = load_txt_path+each
-        print(each)
+        # print(each)
         mat = _read_skeleton(loadname)
         mat = np.array(mat)
         save_path = save_npy_path+'{}.npy'.format(each.replace('.skeleton',''))
         np.save(save_path, mat)
         # raise ValueError()
-    _end_toolbar()

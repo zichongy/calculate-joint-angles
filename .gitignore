@@ -4,3 +4,4 @@
 
 *.mat
 *.npy
+*.DS_Store
