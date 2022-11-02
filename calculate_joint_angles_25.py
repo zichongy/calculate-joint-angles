@@ -1,4 +1,4 @@
-from symbol import import_stmt
+# from symbol import import_stmt
 import numpy as np
 import sys
 import utils.utils as utils
@@ -280,15 +280,6 @@ def draw_skeleton_from_joint_coordinates(kpts):
 
     fig = plt.figure(figsize=(5,5))
     ax = fig.add_subplot(111, projection='3d')
-
-    connections = [['hips', 'lefthip'], ['lefthip', 'leftknee'], ['leftknee', 'leftfoot'],['leftfoot', 'lefttoe'],
-                   ['hips', 'righthip'], ['righthip', 'rightknee'], ['rightknee', 'rightfoot'],['rightfoot', 'righttoe'],
-                   ['hips', 'waist'],['waist', 'neck'], ['neck', 'upperneck'], ['upperneck', 'head'],
-                   ['neck', 'leftshoulder'], ['leftshoulder', 'leftelbow'], ['leftelbow', 'leftwrist'],
-                   ['leftwrist', 'leftwrist2'], ['leftwrist2', 'leftthumb'], ['leftthumb', 'lefthand'],
-                   ['neck', 'rightshoulder'], ['rightshoulder', 'rightelbow'], ['rightelbow', 'rightwrist'],
-                   ['rightwrist', 'rightwrist2'], ['rightwrist2', 'rightthumb'], ['rightthumb', 'righthand'],
-                  ]
 
     for framenum in range(kpts['lefthip'].shape[0]):
         #kpts['lefthip'].shape[0]
