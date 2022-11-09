@@ -4,7 +4,7 @@ import numpy as np
 from data.kinematics_definition import keypoints_to_index_25 as keypoints_to_index
 from data.kinematics_definition import hierarchy_25 as hierarchy
 
-filename = 'datasets/NTU/nturgb+d_npy/S001C001P001R001A001.npy'
+filename = 'datasets/NTU/nturgb+d_npy/S014C002P025R001A054.npy'
 data = np.load(filename, allow_pickle=True).item()
 
 n_body = data['nbodys'][0]
@@ -18,15 +18,19 @@ for i in range(n_body):
     ax = plt.axes(projection='3d')
 
     # plot skeleton using the first frame
-    first_person = data_single[0]
+    first_frame = data_single[0]
     for key, fathers in hierarchy.items():
         if key == 'hips': continue
         father = fathers[0]
-        ax.plot3D([first_person[keypoints_to_index[father]-1][0], first_person[keypoints_to_index[key]-1][0]],
-                  [first_person[keypoints_to_index[father]-1][1], first_person[keypoints_to_index[key]-1][1]],
-                  [first_person[keypoints_to_index[father]-1][2], first_person[keypoints_to_index[key]-1][2]], 'gray')
+        ax.plot3D([first_frame[keypoints_to_index[father]-1][0], first_frame[keypoints_to_index[key]-1][0]],
+                  [first_frame[keypoints_to_index[father]-1][1], first_frame[keypoints_to_index[key]-1][1]],
+                  [first_frame[keypoints_to_index[father]-1][2], first_frame[keypoints_to_index[key]-1][2]], 'gray')
 
-    # plot joint movements
-    for i in range(data_single.shape[1]):
+    # plot key joint movements
+    # joint_list = ['hips']
+    # joint_list_idx = [v-1 for k, v in keypoints_to_index.items() if k in joint_list]
+    joint_list_idx = [v-1 for k, v in keypoints_to_index.items()]
+
+    for i in joint_list_idx:
         ax.plot3D(data_single[:, i, 0], data_single[:, i, 1], data_single[:, i, 2], linewidth=1.5)
 plt.show()

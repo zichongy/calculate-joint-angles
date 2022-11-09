@@ -8,7 +8,15 @@ keypoints_to_index_25 = {'lefthip': 13, 'leftknee': 14, 'leftfoot': 15, 'lefttoe
                          'hips':1, 'waist':2,
                          'neck':21, 'neckup':3, 'head': 4}
 
-# define skeleton offset directions
+# 17 of 25 keypoints from NTU-RGB+D dataset, 1-index
+keypoints_to_index_17 = {'lefthip': 13, 'leftknee': 14, 'leftfoot': 15,
+                         'righthip': 17, 'rightknee': 18, 'rightfoot': 19,
+                         'leftshoulder': 5, 'leftelbow': 6, 'leftwrist': 7,
+                         'rightshoulder': 9, 'rightelbow': 10, 'rightwrist': 11,
+                         'hips':1, 'waist':2,
+                         'neck':21, 'neckup':3, 'head': 4}
+
+# 25 keypoints hierarchy tree from NTU-RGB+D dataset
 hierarchy_25 = {'hips': [],
              'lefthip': ['hips'], 'leftknee': ['lefthip', 'hips'], 'leftfoot': ['leftknee', 'lefthip', 'hips'],'lefttoe': ['leftfoot', 'leftknee', 'lefthip', 'hips'],
              'righthip': ['hips'], 'rightknee': ['righthip', 'hips'], 'rightfoot': ['rightknee', 'righthip', 'hips'],'righttoe': ['rightfoot', 'rightknee', 'righthip', 'hips'],
@@ -18,6 +26,16 @@ hierarchy_25 = {'hips': [],
              'leftthumb': ['leftwrist2', 'leftwrist', 'leftelbow', 'leftshoulder', 'neck', 'waist', 'hips'],'lefthand': ['leftthumb', 'leftwrist2', 'leftwrist', 'leftelbow', 'leftshoulder', 'neck', 'waist', 'hips'],
              'rightthumb': ['rightwrist2', 'rightwrist', 'rightelbow', 'rightshoulder', 'neck', 'waist', 'hips'],'righthand': ['rightthumb', 'rightwrist2', 'rightwrist', 'rightelbow', 'rightshoulder', 'neck', 'waist', 'hips'],
              'rightshoulder': ['neck', 'waist', 'hips'], 'rightelbow': ['rightshoulder', 'neck', 'waist', 'hips'], 'rightwrist': ['rightelbow', 'rightshoulder', 'neck', 'waist', 'hips'],  'rightwrist2': ['rightwrist', 'rightelbow', 'rightshoulder', 'neck', 'waist', 'hips']
+            }
+
+# 17 of 25 keypoints hierarchy tree from NTU-RGB+D dataset
+hierarchy_17 = {'hips': [],
+             'lefthip': ['hips'], 'leftknee': ['lefthip', 'hips'], 'leftfoot': ['leftknee', 'lefthip', 'hips'],
+             'righthip': ['hips'], 'rightknee': ['righthip', 'hips'], 'rightfoot': ['rightknee', 'righthip', 'hips'],
+             'neck': ['waist', 'hips'], 'neckup':['neck', 'waist', 'hips'], 'head':['neckup', 'neck', 'waist', 'hips'],
+             'waist': ['hips'],
+             'leftshoulder': ['neck', 'waist', 'hips'], 'leftelbow': ['leftshoulder', 'neck', 'waist','hips'], 'leftwrist': ['leftelbow', 'leftshoulder', 'neck', 'waist', 'hips'],
+             'rightshoulder': ['neck', 'waist', 'hips'], 'rightelbow': ['rightshoulder', 'neck', 'waist', 'hips'], 'rightwrist': ['rightelbow', 'rightshoulder', 'neck', 'waist', 'hips']
             }
 
 offset_directions_25 = {'lefthip': np.array([1,0,0]),       # left lower
