@@ -4,7 +4,7 @@ import numpy as np
 from data.kinematics_definition import keypoints_to_index_25 as keypoints_to_index
 from data.kinematics_definition import hierarchy_25 as hierarchy
 
-filename = 'datasets/NTU/nturgb+d_npy/S014C002P025R001A054.npy'
+filename = 'datasets/NTU/nturgb+d_npy/S001C001P001R001A002.npy'
 data = np.load(filename, allow_pickle=True).item()
 
 n_body = data['nbodys'][0]
@@ -33,4 +33,12 @@ for i in range(n_body):
 
     for i in joint_list_idx:
         ax.plot3D(data_single[:, i, 0], data_single[:, i, 1], data_single[:, i, 2], linewidth=1.5)
+ax.azim = 90
+ax.elev = -85
+ax.set_xlim3d(-0.75, 1.25)
+ax.set_xlabel('x')
+ax.set_ylim3d(-1, 1)
+ax.set_ylabel('y')
+ax.set_zlim3d(2.5, 4.5)
+ax.set_zlabel('z')
 plt.show()

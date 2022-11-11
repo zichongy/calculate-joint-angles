@@ -65,13 +65,21 @@ def add_hips_and_neck(kpts):
 
     return kpts
 
-#remove jittery keypoints by applying a median filter along each axis
-def median_filter(kpts, window_size = 3):
+#remove jittery keypoints by applying filter along each axis
+def filter_smoothing(kpts, filter = 'median'):
 
     import copy
     filtered = copy.deepcopy(kpts)
 
-    from scipy.signal import medfilt
+    from scipy.signal import medfilt, butter, filtfilt
+
+    # median filter config
+    window_size = 3
+    # butterworth filter config
+    butterworth_type = 'low'
+    butterworth_order = 4 
+    cut_off_frequency = 6 # Hz
+    frame_rate = 30
 
     #apply median filter to get rid of poor keypoints estimations
     for joint in filtered['joints']:
@@ -79,9 +87,20 @@ def median_filter(kpts, window_size = 3):
         xs = joint_kpts[:,0]
         ys = joint_kpts[:,1]
         zs = joint_kpts[:,2]
-        xs = medfilt(xs, window_size)
-        ys = medfilt(ys, window_size)
-        zs = medfilt(zs, window_size)
+        if filter == 'median':
+            xs = medfilt(xs, window_size)
+            ys = medfilt(ys, window_size)
+            zs = medfilt(zs, window_size)
+        elif filter == 'butter':
+            b, a = b, a = butter(
+                N = butterworth_order / 2,
+                Wn = cut_off_frequency / (frame_rate / 2),
+                btype = butterworth_type,
+                analog = False
+            )
+            xs = filtfilt(b, a, xs)
+            ys = filtfilt(b, a, ys)
+            zs = filtfilt(b, a, zs)
         filtered[joint] = np.stack([xs, ys, zs], axis = -1)
 
     return filtered
@@ -420,8 +439,9 @@ if __name__ == '__main__':
         # define the hierarchy and root joint
         add_hips_and_neck(kpts)
 
-        # apply median filter, per joint, per axis
-        filtered_kpts = median_filter(kpts)
+        # apply smoothing filter, per joint, per axis
+        # filtered_kpts = filter_smoothing(kpts, filter='median')
+        filtered_kpts = filter_smoothing(kpts, filter='butter')
 
         # calculate bone lengths by finding median distance between joints
         get_bone_lengths(filtered_kpts)
@@ -441,7 +461,8 @@ if __name__ == '__main__':
 
         # draw the skeleton
         # draw_skeleton_from_joint_coordinates(filtered_kpts_assign)
-        output_kpts = calculate_skeleton_from_joint_angles(filtered_kpts, plotting=False, fps=15)
+        output_kpts = calculate_skeleton_from_joint_angles(filtered_kpts, plotting=True, fps=30)
+        a = 0
 
         # save the output
         # with open('sample.pkl', 'wb') as fd:
